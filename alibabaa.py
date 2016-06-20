@@ -5,7 +5,7 @@ import re
 import json
 import urllib
 import requests
-from autouseragents.auto_user_agents import AutoUserAgents
+from autouseragents.autouseragents import AutoUserAgents
 from bs4 import BeautifulSoup
 import sys
 reload(sys)
