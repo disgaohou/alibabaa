@@ -93,7 +93,8 @@ class Alibabaa(object):
             for i in range(self.PAGE):
                 pdata = []
                 url = self.URL.format(keyword=key, page=i + 1)
-                response = requests.get(url, headers=self.MUA.random_agent())
+                headers["user-agent"] = self.MUA.random_agent().values[0]
+                response = requests.get(url, headers=self.HEADERS)
                 print response.url
                 html = response.content.decode("gbk")
                 m = re.search(r"\<li.*\>", html).group(0)
