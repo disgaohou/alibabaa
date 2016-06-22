@@ -90,9 +90,6 @@ ENV/
 
 # User project settings
 .idea/
-cache/
-data/
 *.pyc
 *.txt
-test*.py
-pyproxy.py
+alibabaa/*.txt
