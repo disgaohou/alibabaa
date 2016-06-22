@@ -33,6 +33,10 @@ class Alibabaa(object):
         self.RESULTS = {}
         self.DATAFILE = r"data.txt"
 
+    def setPage(self, page):
+        if page and isinstance(int, page) and page > 0:
+            self.PAGE = page
+
     def addKeyword(self, keyword="", page=1):
         if keyword:
             if keyword not in self.KEYWORDS:
