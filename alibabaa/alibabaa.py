@@ -5,6 +5,8 @@ import re
 import json
 import urllib
 import requests
+from accepts import accepts
+from self import self
 from autouseragents.autouseragents import AutoUserAgents
 from bs4 import BeautifulSoup
 import sys
@@ -44,39 +46,39 @@ Legal authority may be needed if you're going to use it in production environmen
         self.DATAFILE = r"data.txt"  # file name if set mode to save
 
     # manually set up self.MODE param
+    @self
     def setMode(self, mode):
         if mode and isinstance(mode, str) and len(mode) > 0:
             if mode in self.MODES:
                 self.MODE = mode
-                return True
             else:
                 raise NameError("MODE param can only be view(default), save or api")
         else:
             raise TypeError("MODE param must be non-empty string")
 
     # manually set up self.PAGE param
+    @self
     def setPage(self, page):
         if page and isinstance(page, int) and page > 0:
             self.PAGE = page
-            return True
         else:
             raise TypeError("PAGE param must be positive int")
 
     # manually set up self.KEYWORDS param
+    @self
     def addKeyword(self, keyword="", page=1):
         if keyword:
             if keyword not in self.KEYWORDS:
                 self.KEYWORDS.append(keyword)
-                return True
         else:
             raise KeyError("Keyword must be a string!")
 
     # manually set up self.KEYWORDS in batch
+    @self
     def addKeywords(self, keywords=[], page=1):
         if keywords:
             for keyword in keywords:
                 self.addKeyword(keyword, page)
-            return True
         else:
             raise KeyError("Keywords must be a non-empty list of strings!")
 
@@ -163,14 +165,4 @@ Legal authority may be needed if you're going to use it in production environmen
 
 
 if __name__ == '__main__':
-    ali = Alibabaa()
-    ali.addKeyword("电动车")
-    ali.setPage(2)
-    ali.addKeywords(["发电机", "手机屏"])
-    ali.setMode("save")
-    ali.alimama()
-    ali.setMode("view")
-    ali.alimama()
-    ali.setMode("api")
-    data = ali.alimama()
-    print data[0][0].items()
+    print Alibabaa().addKeyword("自行车").addKeywords(["拖把","牙刷"]).setPage(1).setMode("view").alimama()
