@@ -13,30 +13,56 @@ sys.setdefaultencoding("utf-8")
 
 
 class Alibabaa(object):
-
-    def __init__(self, keywords=None, page=1):
-        self.KEYWORDS = []
-        if keywords:
+    """
+This is a very simple python script to fetch API like search results data from https://s.1688.com.
+Can be really helpful if you just need some easy to use yet reliable interface level tool.
+You can use this tool under MIT license.
+Legal authority may be needed if you're going to use it in production environment.
+    """
+    def __init__(self, keywords=None, page=1, mode="view"):
+        self.KEYWORDS = []  # init KEYWORDS in constructor
+        if keywords:  # parse and add keywords
             if isinstance(keywords, str):
                 self.addKeyword(keywords, page)
             elif isinstance(keywords, list):
                 self.addKeywords(keywords, page)
-        self.PAGE = page
+        self.PAGE = page  # init PAGE in constructor
+        #  target url to request data
         self.URL = "https://s.1688.com/selloffer/rpc_async_render.jsonp?keywords={keyword}&button_click=top&n=y&uniqfield=pic_tag_id&templateConfigName=marketOfferresult&beginPage={page}&offset=9&pageSize=60&asyncCount=60&startIndex=0&async=true&enableAsync=true&rpcflag=new&_pageName_=market"
-        self.MUA = AutoUserAgents()
-        self.HEADERS = {
+        self.MUA = AutoUserAgents()  # init random agent object for convenient use afterwards
+        self.HEADERS = {  # init HEADERS param in constructor, useragent will be later set to a random one
             "referer": "https://s.1688.com/",
             "user-agent": "",
             "x-requested-with": "XMLHttpRequest"
         }
-        self.MODES = ["view", "save", "api"]
-        self.RESULTS = {}
-        self.DATAFILE = r"data.txt"
+        self.MODES = ["view", "save", "api"]  # init MODES pool param in constructor
+        if mode:
+            self.setMode(mode)
+        else:
+            self.setMode("view")
+        self.RESULTS = {}  # results to return
+        self.DATAFILE = r"data.txt"  # file name if set mode to save
 
+    # manually set up self.MODE param
+    def setMode(self, mode):
+        if mode and isinstance(mode, str) and len(mode) > 0:
+            if mode in self.MODES:
+                self.MODE = mode
+                return True
+            else:
+                raise NameError("MODE param can only be view(default), save or api")
+        else:
+            raise TypeError("MODE param must be non-empty string")
+
+    # manually set up self.PAGE param
     def setPage(self, page):
-        if page and isinstance(int, page) and page > 0:
+        if page and isinstance(page, int) and page > 0:
             self.PAGE = page
+            return True
+        else:
+            raise TypeError("PAGE param must be positive int")
 
+    # manually set up self.KEYWORDS param
     def addKeyword(self, keyword="", page=1):
         if keyword:
             if keyword not in self.KEYWORDS:
@@ -45,6 +71,7 @@ class Alibabaa(object):
         else:
             raise KeyError("Keyword must be a string!")
 
+    # manually set up self.KEYWORDS in batch
     def addKeywords(self, keywords=[], page=1):
         if keywords:
             for keyword in keywords:
@@ -53,6 +80,7 @@ class Alibabaa(object):
         else:
             raise KeyError("Keywords must be a non-empty list of strings!")
 
+    # method to extract useful data from every item of the returned results
     def extract(self, item):
         data = {}
         mainBlock = item.find("div", class_="imgofferresult-mainBlock")
@@ -89,8 +117,11 @@ class Alibabaa(object):
             return data
         return None
 
-    def alimama(self, mode="view"):
-        assert mode in self.MODES
+    def alimama(self, mode=None):
+        if not mode:
+            mode = self.MODE
+        else:
+            self.setMode(mode)
         for keyword in self.KEYWORDS:
             self.RESULTS[self.KEYWORDS.index(keyword)] = []
             key = urllib.quote(keyword.decode("utf-8").encode("gbk"))
@@ -99,13 +130,15 @@ class Alibabaa(object):
                 url = self.URL.format(keyword=key, page=i + 1)
                 self.HEADERS["user-agent"] = self.MUA.random_agent().values()[0]
                 response = requests.get(url, headers=self.HEADERS)
-                print response.url
                 html = response.content.decode("gbk")
+                # this is vital in this tool
+                # some stupid way to mine out the data you want from a vast ocean of formated yet not easy to deal with content
                 m = re.search(r"\<li.*\>", html).group(0)
                 m = re.sub(r"\\n", "", m)
                 m = re.sub(r"\\r", "", m)
                 m = re.sub(r"\\", "", m)
                 p = re.sub(r"\<!--.*?--\>", "", m)
+                # parse the formated data
                 soup = BeautifulSoup(p, "lxml")
                 items = soup.findAll("li", class_="sm-offer-item sw-dpl-offer-item ")
                 for item in items:
@@ -114,20 +147,30 @@ class Alibabaa(object):
                         pdata.append(data)
                 if pdata:
                     self.RESULTS[self.KEYWORDS.index(keyword)] = pdata
-                if mode == "view":
+                if mode == "view":  # show data if mode is view
                     for data in pdata:
                         for k, v in data.items():
                             print k, v
-        if mode == "save":
+        if mode == "save":  # save file if mode is save
             with open(self.DATAFILE, "w") as f:
                 try:
                     f.write(json.dumps(self.RESULTS))
                     return True
                 except Exception as e:
                     raise RuntimeError("Unable to save scraped data to file {}".format(self.DATAFILE))
-        if mode == "api":
+        if mode == "api":  # return data if mode is api
             return self.RESULTS
 
 
 if __name__ == '__main__':
-    Alibabaa("自行车", page=2).alimama(mode="view")
+    ali = Alibabaa()
+    ali.addKeyword("电动车")
+    ali.setPage(2)
+    ali.addKeywords(["发电机", "手机屏"])
+    ali.setMode("save")
+    ali.alimama()
+    ali.setMode("view")
+    ali.alimama()
+    ali.setMode("api")
+    data = ali.alimama()
+    print data[0][0].items()
