@@ -18,14 +18,14 @@ def read(fname):
 
 NAME = "alibabaa"
 PACKAGES = find_packages()
-REQUIREMENTS = ["requests", "bs4", "autouseragents"]
+REQUIREMENTS = ["requests", "bs4", "autouseragents", "self"]
 DESCRIPTION = "A non-official tool to fetch API like search results data from https://s.1688.com"
 LONG_DESCRIPTION = read("README.rst")
 KEYWORDS = "alibaba ali 1688 alimama"
 AUTHOR = "Broono"
 AUTHOR_EMAIL = "tosven.broono@gmail.com"
 URL = "https://github.com/brunobell/alibabaa"
-VERSION = "0.1"
+VERSION = "0.1.1"
 LICENSE = "MIT"
 
 setup(

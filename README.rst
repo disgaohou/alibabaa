@@ -13,21 +13,25 @@ Usage Example
 -------------
 
 .. code:: python
-
+    
     >>> from alibabaa.alibabaa import Alibabaa
+
+    # jquery style of to call methods
+    >>> print Alibabaa().addKeyword("自行车").addKeywords(["发电机","手机屏"]).setPage(1).setMode("view").alimama()
+    item 山地车碟刹山地自行车/自行车批发酒类促销PF980大头
+    price 215.0
+    company 天津市盛强自行车有限公司
+    location unknown
+    ......
+    
+    # traditional way to call methods
     >>> ali = Alibabaa()
     >>> ali.addKeyword("电动车")
-    True
     >>> ali.setPage(2)
-    True
     >>> ali.addKeywords(["发电机","手机屏"])
-    True
     >>> ali.setMode("save")
-    True
     >>> ali.alimama()
-    True
     >>> ali.setMode("view")
-    True
     >>> ali.alimama()
     item 山地车碟刹山地自行车/自行车批发酒类促销PF980大头
     price 215.0
