@@ -16,7 +16,7 @@ def read(fname):
     return codecs.open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-NAME = "autouseragents"
+NAME = "alibabaa"
 PACKAGES = find_packages()
 REQUIREMENTS = ["requests", "bs4", "autouseragents"]
 DESCRIPTION = "A non-official tool to fetch API like search results data from https://s.1688.com"
