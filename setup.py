@@ -25,7 +25,7 @@ KEYWORDS = "alibaba ali 1688 alimama"
 AUTHOR = "Broono"
 AUTHOR_EMAIL = "tosven.broono@gmail.com"
 URL = "https://github.com/brunobell/alibabaa"
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 LICENSE = "MIT"
 
 setup(
