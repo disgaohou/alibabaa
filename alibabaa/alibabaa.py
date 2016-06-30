@@ -5,8 +5,8 @@ import re
 import json
 import urllib
 import requests
-from accepts import accepts
 from self import self
+from freexici import freexici
 from autouseragents.autouseragents import AutoUserAgents
 from bs4 import BeautifulSoup
 import sys
@@ -21,6 +21,7 @@ Can be really helpful if you just need some easy to use yet reliable interface l
 You can use this tool under MIT license.
 Legal authority may be needed if you're going to use it in production environment.
     """
+
     def __init__(self, keywords=None, page=1, mode="view"):
         self.KEYWORDS = []  # init KEYWORDS in constructor
         if keywords:  # parse and add keywords
@@ -37,7 +38,8 @@ Legal authority may be needed if you're going to use it in production environmen
             "user-agent": "",
             "x-requested-with": "XMLHttpRequest"
         }
-        self.MODES = ["view", "save", "api"]  # init MODES pool param in constructor
+        # init MODES pool param in constructor
+        self.MODES = ["view", "save", "api"]
         if mode:
             self.setMode(mode)
         else:
@@ -52,7 +54,8 @@ Legal authority may be needed if you're going to use it in production environmen
             if mode in self.MODES:
                 self.MODE = mode
             else:
-                raise NameError("MODE param can only be view(default), save or api")
+                raise NameError(
+                    "MODE param can only be view(default), save or api")
         else:
             raise TypeError("MODE param must be non-empty string")
 
@@ -90,7 +93,8 @@ Legal authority may be needed if you're going to use it in production environmen
             second = mainBlock.find(
                 "div", class_=re.compile(r".*sm-offer-price.*"))
             if second:
-                tag = second.find("span", class_=re.compile(r".*sm-offer-priceNum.*"))
+                tag = second.find("span", class_=re.compile(
+                    r".*sm-offer-priceNum.*"))
                 if tag:
                     priceStr = tag.getText().strip()
                     priceList = re.findall(r"\d*\.\d*", priceStr)
@@ -99,10 +103,12 @@ Legal authority may be needed if you're going to use it in production environmen
                 else:
                     data["price"] = -1
 
-            third = mainBlock.find("div", class_=re.compile(r".*sm-offer-title.*"))
+            third = mainBlock.find(
+                "div", class_=re.compile(r".*sm-offer-title.*"))
             if third:
                 tag = third.find("a", attrs={"offer-stat": "title"})
-                data["item"] = "" if not tag else tag["title"].strip().encode("utf8")
+                data["item"] = "" if not tag else tag[
+                    "title"].strip().encode("utf8")
 
             fourth = mainBlock.find(
                 "div", class_=re.compile(r".*sm-offer-company.*"))
@@ -111,13 +117,29 @@ Legal authority may be needed if you're going to use it in production environmen
                 data["company"] = "unknown" if not tag else tag.getText(
                 ).strip().encode("utf8")
 
-            fifth = mainBlock.find("div", class_=re.compile(r".*sm-offer-sub.*"))
+            fifth = mainBlock.find(
+                "div", class_=re.compile(r".*sm-offer-sub.*"))
             if fifth:
                 tag = fifth.find("div", class_=re.compile(r".*location.*"))
                 data["location"] = "unknown" if not tag else tag.getText(
                 ).strip().encode("utf8")
             return data
         return None
+
+    def getResponse(self, url, headers, proxy=False, timeout=8):
+        if proxy:
+            proxies = freexici.randomProxy()
+            for p in proxies:
+                proxies = p
+        else:
+            proxies = None
+        while True:
+            response = requests.get(
+                url, headers=headers, proxies=proxies, timeout=timeout)
+            if response.status_code == 200:
+                return response
+            else:
+                return self.getResponse(url, headers, True)
 
     def alimama(self, mode=None):
         if not mode:
@@ -130,11 +152,13 @@ Legal authority may be needed if you're going to use it in production environmen
             for i in range(self.PAGE):
                 pdata = []
                 url = self.URL.format(keyword=key, page=i + 1)
-                self.HEADERS["user-agent"] = self.MUA.random_agent().values()[0]
-                response = requests.get(url, headers=self.HEADERS)
+                self.HEADERS[
+                    "user-agent"] = self.MUA.random_agent().values()[0]
+                response = self.getResponse(url, self.HEADERS)
                 html = response.content.decode("gbk")
                 # this is vital in this tool
-                # some stupid way to mine out the data you want from a vast ocean of formated yet not easy to deal with content
+                # some stupid way to mine out the data you want from a vast
+                # ocean of formated yet not easy to deal with content
                 m = re.search(r"\<li.*\>", html).group(0)
                 m = re.sub(r"\\n", "", m)
                 m = re.sub(r"\\r", "", m)
@@ -142,7 +166,8 @@ Legal authority may be needed if you're going to use it in production environmen
                 p = re.sub(r"\<!--.*?--\>", "", m)
                 # parse the formated data
                 soup = BeautifulSoup(p, "lxml")
-                items = soup.findAll("li", class_="sm-offer-item sw-dpl-offer-item ")
+                items = soup.findAll(
+                    "li", class_="sm-offer-item sw-dpl-offer-item ")
                 for item in items:
                     data = self.extract(item)
                     if data:
@@ -159,10 +184,11 @@ Legal authority may be needed if you're going to use it in production environmen
                     f.write(json.dumps(self.RESULTS))
                     return True
                 except Exception as e:
-                    raise RuntimeError("Unable to save scraped data to file {}".format(self.DATAFILE))
+                    raise RuntimeError(
+                        "Unable to save scraped data to file {}".format(self.DATAFILE))
         if mode == "api":  # return data if mode is api
             return self.RESULTS
 
 
 if __name__ == '__main__':
-    print Alibabaa().addKeyword("自行车").addKeywords(["拖把","牙刷"]).setPage(1).setMode("view").alimama()
+    print Alibabaa().addKeyword("自行车").addKeywords(["拖把", "牙刷"]).setPage(1).setMode("view").alimama()
