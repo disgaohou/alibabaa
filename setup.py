@@ -18,7 +18,7 @@ def read(fname):
 
 NAME = "alibabaa"
 PACKAGES = find_packages()
-REQUIREMENTS = ["requests", "bs4", "autouseragents", "self"]
+REQUIREMENTS = ["requests", "bs4", "autouseragents", "self", "freexici"]
 DESCRIPTION = "A non-official tool to fetch API like search results data from https://s.1688.com"
 LONG_DESCRIPTION = read("README.rst")
 KEYWORDS = "alibaba ali 1688 alimama"

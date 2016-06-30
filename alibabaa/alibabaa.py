@@ -191,4 +191,4 @@ Legal authority may be needed if you're going to use it in production environmen
 
 
 if __name__ == '__main__':
-    print Alibabaa().addKeyword("自行车").addKeywords(["拖把", "牙刷"]).setPage(1).setMode("view").alimama()
+    print Alibabaa().addKeyword("自行车").addKeywords(["拖把", "牙刷"]).setPage(10).setMode("view").alimama()
